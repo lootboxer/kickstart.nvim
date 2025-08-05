@@ -85,7 +85,6 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 -- Custom config.
-require 'custom.keybindings'
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -1012,7 +1011,12 @@ require('lazy').setup({
       -- // custom mini plugins
       --
       require('mini.starter').setup()
-      -- require('mini.bufremove').setup()
+      require('mini.bufremove').setup {
+        -- Duration of highlight when buffer is deleted
+        highlight_duration = 500,
+        -- Whether to set Vim's settings for buffers (recommend keeping true)
+        set_vim_settings = true,
+      }
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -1129,3 +1133,5 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+-- Custom configs
+require 'custom.keybindings'

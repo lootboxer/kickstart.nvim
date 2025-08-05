@@ -14,21 +14,41 @@ return {
     { '<leader>e', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
   },
   opts = {
+    close_if_last_window = false,
+    popup_border_style = 'rounded',
+    enable_git_status = true,
+    enable_diagnostics = true,
     window = {
       position = 'left',
       width = 36,
-      mappings = {
-        ['<leader>e'] = 'close_window',
-        ['<C-cr>'] = {
-          'open',
-          config = {
-            open_command = 'tabnew',
-          },
-        },
-        ['oa'] = 'avante_add_files',
+      mapping_options = {
+        noremap = true,
+        nowait = true,
       },
     },
     filesystem = {
+      visible = false,
+      hide_dotfiles = false,
+      hide_gitignored = true,
+      hide_hidden = true,
+      filesystem = {
+        follow_current_file = {
+          enabled = true,
+          leave_dirs_open = false,
+        },
+      },
+      filtered_items = {
+        hide_dotfiles = false,
+        hide_gitignored = false,
+        hide_by_name = {
+          'node_modules',
+        },
+        never_show = {
+          '.DS_Store',
+          'thumbs.db',
+        },
+      },
+      -- avante
       bind_to_cwd = true,
       commands = {
         avante_add_files = function(state)
@@ -54,12 +74,49 @@ return {
         end,
       },
     },
+    default_component_configs = {
+      indent = {
+        with_markers = true,
+        indent_marker = '│',
+        last_indent_marker = '└',
+        highlight = 'NeoTreeIndentMarker',
+      },
+      icon = {
+        folder_closed = '📁',
+        folder_open = '📂',
+        folder_empty = '(empty)',
+        default = '*',
+        highlight = 'NeoTreeFileIcon',
+      },
+      modified = {
+        symbol = '[+]',
+        highlight = 'NeoTreeModified',
+      },
+      name = {
+        trailing_slash = false,
+        use_git_status_colors = true,
+        highlight = 'NeoTreeFileName',
+      },
+      git_status = {
+        symbols = {
+          added = '✚',
+          modified = 'm',
+          deleted = '✖',
+          renamed = 'r',
+          untracked = '(untracked)',
+          ignored = 'i',
+          unstaged = '(unstaged)',
+          staged = '(staged)',
+          conflict = '(conflict)',
+        },
+      },
+    },
   },
   config = function(_, opts)
     require('neo-tree').setup(opts)
     vim.api.nvim_create_autocmd('VimEnter', {
       callback = function()
-        local arg = vim.fn.argv(0) -- первый аргумент при запуске Neovim
+        local arg = vim.fn.argv(0) -- the first argument during execution neovim
         if arg ~= '' and vim.fn.isdirectory(arg) == 1 then
           vim.cmd('cd ' .. arg)
         end
