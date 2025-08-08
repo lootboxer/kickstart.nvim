@@ -210,6 +210,8 @@ vim.keymap.set('n', '<C-S-l>', '<C-w>L', { desc = 'Move window to the right' })
 vim.keymap.set('n', '<C-S-j>', '<C-w>J', { desc = 'Move window to the lower' })
 vim.keymap.set('n', '<C-S-k>', '<C-w>K', { desc = 'Move window to the upper' })
 
+require 'custom.keybindings'
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -1133,5 +1135,3 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
--- Custom configs
-require 'custom.keybindings'
