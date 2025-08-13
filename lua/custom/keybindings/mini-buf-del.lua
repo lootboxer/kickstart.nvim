@@ -2,6 +2,10 @@ vim.keymap.set('n', '<leader>bd', function()
   require('mini.bufremove').delete(0) -- Delete current buffer
 end, { desc = 'Delete buffer (mini.bufremove)' })
 
+vim.keymap.set('n', '<leader>q', function()
+  require('mini.bufremove').delete(0) -- Delete current buffer
+end, { desc = 'Delete buffer (mini.bufremove)' })
+
 vim.keymap.set('n', '<leader>bD', function()
   require('mini.bufremove').delete(0, true) -- Force delete current buffer
 end, { desc = 'Force delete buffer (mini.bufremove)' })
