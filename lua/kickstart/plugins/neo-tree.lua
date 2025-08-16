@@ -179,11 +179,13 @@ return {
       },
       follow_current_file = {
         enabled = true,
-        leave_dirs_open = false,
+        leave_dirs_open = true,
       },
+      scan_mode = "deep",
+      watch_file_changes = true,
       group_empty_dirs = false,
       hijack_netrw_behavior = 'open_default',
-      use_libuv_file_watcher = false,
+      use_libuv_file_watcher = true,
       window = {
         mappings = {
           ['<bs>'] = 'navigate_up',
@@ -230,6 +232,10 @@ return {
         },
       },
       bind_to_cwd = true,
+      cwd_target = {
+        sidebar = "tab",
+        current = "window"
+      },
       commands = {
         avante_add_files = function(state)
           local node = state.tree:get_node()
@@ -326,6 +332,22 @@ return {
             vim.cmd('cd ' .. dir)
           end
         end
+      end,
+    })
+
+    -- Auto-refresh Neo-tree when files change externally
+    vim.api.nvim_create_autocmd({ 'BufWritePost', 'VimResume', 'FocusGained' }, {
+      callback = function()
+        local manager = require('neo-tree.sources.manager')
+        manager.refresh('filesystem')
+      end,
+    })
+
+    -- Sync Neo-tree with current working directory changes
+    vim.api.nvim_create_autocmd('DirChanged', {
+      callback = function()
+        local manager = require('neo-tree.sources.manager')
+        manager.refresh('filesystem')
       end,
     })
   end,
