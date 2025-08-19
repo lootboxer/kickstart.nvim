@@ -1,10 +1,9 @@
+local config = require 'custom.envs.neovim-project'
+
 return {
   'coffebar/neovim-project',
   opts = {
-    projects = { -- define project roots
-      '~/Repos/*',
-      '~/.config/*',
-    },
+    projects = config.projects or {},
     picker = {
       type = 'telescope', -- one of "telescope", "fzf-lua", or "snacks"
     },
