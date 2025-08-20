@@ -896,20 +896,7 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
-
-        ['<Tab>'] = {
-          function(cmp)
-            if cmp.snippet_active() then
-              return cmp.accept()
-            else
-              return cmp.select_and_accept()
-            end
-            vim.api.nvim_command '<Esc>'
-          end,
-          'snippet_forward',
-          'fallback',
-        },
+        preset = 'super-tab',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -931,16 +918,22 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev', 'avante' },
+        default = {
+          'lsp',
+          'path',
+          -- 'snippets',
+          -- 'lazydev',
+          -- 'avante',
+        },
         providers = {
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
-          avante = {
-            module = 'blink-cmp-avante',
-            name = 'Avante',
-            opts = {
-              -- options for blink-cmp-avante
-            },
-          },
+          -- lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          -- avante = {
+          --   module = 'blink-cmp-avante',
+          --   name = 'Avante',
+          --   opts = {
+          --     -- options for blink-cmp-avante
+          --   },
+          -- },
         },
       },
 
