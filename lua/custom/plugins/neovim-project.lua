@@ -7,6 +7,10 @@ return {
     picker = {
       type = 'telescope', -- one of "telescope", "fzf-lua", or "snacks"
     },
+    -- Last project configuration
+    last_session_on_startup = true, -- automatically load last project on startup
+    -- Dashboard integration (if you use dashboard)
+    dashboard_mode = true,
   },
   init = function()
     -- enable saving the state of plugins in the session
