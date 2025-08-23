@@ -85,7 +85,6 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 -- Custom config.
-require 'custom.keybindings'
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
@@ -180,7 +179,7 @@ vim.o.confirm = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>d', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -206,10 +205,12 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+vim.keymap.set('n', '<C-S-h>', '<C-w>H', { desc = 'Move window to the left' })
+vim.keymap.set('n', '<C-S-l>', '<C-w>L', { desc = 'Move window to the right' })
+vim.keymap.set('n', '<C-S-j>', '<C-w>J', { desc = 'Move window to the lower' })
+vim.keymap.set('n', '<C-S-k>', '<C-w>K', { desc = 'Move window to the upper' })
+
+require 'custom.keybindings'
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -690,31 +691,14 @@ require('lazy').setup({
         -- ts_ls = {},
         --
         -- Vue 3
-        volar = {
+        --
+        vuels = {
+          filetypes = { 'vue', 'javascript', 'typescript' },
           init_options = {
-            vue = {
-              hybridMode = false,
-            },
-          },
-          settings = {
-            typescript = {
-              inlayHints = {
-                enumMemberValues = {
-                  enabled = true,
-                },
-                functionLikeReturnTypes = {
-                  enabled = true,
-                },
-                propertyDeclarationTypes = {
-                  enabled = true,
-                },
-                parameterTypes = {
-                  enabled = true,
-                  suppressWhenArgumentMatchesName = true,
-                },
-                variableTypes = {
-                  enabled = true,
-                },
+            config = {
+              vetur = { -- For Vue 2 compatibility (optional)
+                validation = { template = true, script = true, style = true },
+                format = { enable = false }, -- Disable if using Prettier
               },
             },
           },
@@ -732,9 +716,6 @@ require('lazy').setup({
           },
           settings = {
             typescript = {
-              tsserver = {
-                useSyntaxServer = false,
-              },
               inlayHints = {
                 includeInlayParameterNameHints = 'all',
                 includeInlayParameterNameHintsWhenArgumentMatchesName = true,
@@ -747,6 +728,7 @@ require('lazy').setup({
               },
             },
           },
+          filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
         },
         lua_ls = {
           -- cmd = { ... },
@@ -765,6 +747,14 @@ require('lazy').setup({
 
         -- python lsp
         pyright = {},
+        -- CSS/SCSS LSP
+        cssls = {
+          filetypes = { 'css', 'scss', 'sass' },
+        },
+        -- Emmet LSP
+        emmet_language_server = {
+          filetypes = { 'html', 'css', 'javascript', 'typescript', 'vue', 'jsx', 'tsx' },
+        },
       }
 
       -- Ensure the servers and tools above are installed
@@ -784,10 +774,16 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
       })
+      vim.filetype.add {
+        extension = {
+          vue = 'vue',
+        },
+      }
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+        ensure_installed = { 'vuels', 'lua_ls' }, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
+        automatic_enable = true,
         automatic_installation = false,
         handlers = {
           function(server_name)
@@ -839,7 +835,7 @@ require('lazy').setup({
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        -- javascript = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -866,12 +862,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          {
-            'rafamadriz/friendly-snippets',
-            config = function()
-              require('luasnip.loaders.from_vscode').lazy_load()
-            end,
-          },
+          -- {
+          --   'rafamadriz/friendly-snippets',
+          --   config = function()
+          --     require('luasnip.loaders.from_vscode').lazy_load()
+          --   end,
+          -- },
         },
         opts = {},
       },
@@ -881,80 +877,58 @@ require('lazy').setup({
     --- @type blink.cmp.Config
     opts = {
       keymap = {
-        -- 'default' (recommended) for mappings similar to built-in completions
-        --   <c-y> to accept ([y]es) the completion.
-        --    This will auto-import if your LSP supports it.
-        --    This will expand snippets if the LSP sent a snippet.
-        -- 'super-tab' for tab to accept
-        -- 'enter' for enter to accept
-        -- 'none' for no mappings
-        --
-        -- For an understanding of why the 'default' preset is recommended,
-        -- you will need to read `:help ins-completion`
-        --
-        -- No, but seriously. Please read `:help ins-completion`, it is really good!
-        --
-        -- All presets have the following mappings:
-        -- <tab>/<s-tab>: move to right/left of your snippet expansion
-        -- <c-space>: Open menu or open docs if already open
-        -- <c-n>/<c-p> or <up>/<down>: Select next/previous item
-        -- <c-e>: Hide menu
-        -- <c-k>: Toggle signature help
-        --
-        -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
-
-        ['<Tab>'] = {
-          function(cmp)
-            if cmp.snippet_active() then
-              return cmp.accept()
-            else
-              return cmp.select_and_accept()
-            end
-          end,
-          'snippet_forward',
-          'fallback',
-        },
-
-        -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
-        --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
+        preset = 'super-tab',
+        ['<CR>'] = { 'accept', 'fallback' },
       },
 
       appearance = {
-        -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
-        -- Adjusts spacing to ensure icons are aligned
-        nerd_font_variant = 'mono',
+        use_nvim_cmp_as_default = false,
+        nerd_font_variant = 'normal',
       },
-
       completion = {
-        -- By default, you may press `<c-space>` to show the documentation.
-        -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
-        ghost_text = {
-          enabled = true,
+        accept = { auto_brackets = { enabled = true } },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 250,
+          treesitter_highlighting = true,
+          window = { border = 'rounded' },
+        },
+        list = {
+          selection = {
+            preselect = false,
+            auto_insert = false,
+          },
+        },
+        menu = {
+          border = 'rounded',
+          draw = {
+            treesitter = { 'lsp' },
+          },
         },
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev' },
+        default = { 'lazydev', 'lsp', 'path', 'snippets', 'buffer' },
         providers = {
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          lazydev = {
+            name = 'LazyDev',
+            module = 'lazydev.integrations.blink',
+            score_offset = 100,
+          },
+          lsp = {
+            score_offset = 0,
+          },
+          path = {},
+          buffer = {
+            max_items = 5,
+          },
         },
       },
-
-      snippets = { preset = 'luasnip' },
-
-      -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
-      -- which automatically downloads a prebuilt binary when enabled.
-      --
-      -- By default, we use the Lua implementation instead, but you may enable
-      -- the rust implementation via `'prefer_rust_with_warning'`
-      --
-      -- See :h blink-cmp-config-fuzzy for more information
       fuzzy = { implementation = 'lua' },
-
-      -- Shows a signature help window while you type arguments for a function
-      signature = { enabled = true },
+      signature = {
+        enabled = true,
+        window = { border = 'rounded' },
+      },
     },
   },
 
@@ -1011,6 +985,12 @@ require('lazy').setup({
       -- // custom mini plugins
       --
       require('mini.starter').setup()
+      require('mini.bufremove').setup {
+        -- Duration of highlight when buffer is deleted
+        highlight_duration = 500,
+        -- Whether to set Vim's settings for buffers (recommend keeping true)
+        set_vim_settings = true,
+      }
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -1033,11 +1013,32 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    dependencies = {
+      -- Add nvim-ts-autotag
+      { 'windwp/nvim-ts-autotag' },
+    },
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'html',
+        'javascript',
+        'typescript',
+        'tsx',
+        'vue',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1048,6 +1049,9 @@ require('lazy').setup({
         additional_vim_regex_highlighting = { 'ruby' },
       },
       indent = { enable = true, disable = { 'ruby' } },
+      autotag = {
+        enabled = true,
+      },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
@@ -1069,9 +1073,9 @@ require('lazy').setup({
   -- require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
   require 'kickstart.plugins.lint',
-  require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.nvim-ts-autotag', -- adds nvim-ts-autotag
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
