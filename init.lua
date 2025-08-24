@@ -1131,13 +1131,3 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
---
---vim.api.nvim_create_user_command("ReloadConfig", function()
-  for name,_ in pairs(package.loaded) do
-    if name:match("^user") then  -- adjust "user" to your config namespace
-      package.loaded[name] = nil
-    end
-  end
-  dofile(vim.env.MYVIMRC)
-  print("Config reloaded!")
-end, {})
