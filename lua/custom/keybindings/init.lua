@@ -1,4 +1,3 @@
--- Custom Keybinds.
 vim.keymap.set('i', 'jk', '<Esc>', { desc = 'escape' })
 vim.keymap.set('i', 'kj', '<Esc>', { desc = 'escape' })
 
